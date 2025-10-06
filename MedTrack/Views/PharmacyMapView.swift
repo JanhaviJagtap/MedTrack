@@ -39,7 +39,7 @@ struct PharmacyMapView: View {
                             Text(pharmacy.name)
                                 .font(.caption)
                                 .padding(4)
-                                .background(.white)
+                                .background(.blue)
                                 .cornerRadius(4)
                         }
                         .onTapGesture {
