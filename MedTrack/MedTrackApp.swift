@@ -9,12 +9,17 @@ import SwiftUI
 
 @main
 struct MedTrackApp: App {
-    let persistenceController = PersistenceController.shared
-
+    let coreDataManager = CoreDataManager.shared
+    
+    init() {
+        // Request notification permission
+        NotificationManager.shared.requestPermission()
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                .environment(\.managedObjectContext, coreDataManager.context)
         }
     }
 }
