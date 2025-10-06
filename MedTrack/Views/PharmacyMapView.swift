@@ -10,39 +10,48 @@ import MapKit
 import CoreLocation
 
 // Map view showing nearby pharmacies with annotations and details.
+import SwiftUI
+import MapKit
+
 struct PharmacyMapView: View {
-    @StateObject private var viewModel = PharmacyViewModel()  // ViewModel managing pharmacy data
+    @StateObject private var viewModel = PharmacyViewModel()
+    @State private var position: MapCameraPosition = .region(
+        MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: -33.8688, longitude: 151.2093),
+            span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+        )
+    )
     
     var body: some View {
         ZStack {
-            // Map showing pharmacy locations with custom annotations
-            Map(coordinateRegion: $viewModel.region,
-                showsUserLocation: false,    // User location not shown
-                annotationItems: viewModel.pharmacies) { pharmacy in
-                MapAnnotation(coordinate: pharmacy.coordinate) {
-                    VStack {
-                        Image(systemName: "cross.case.fill")
-                            .foregroundColor(.red)
-                            .font(.title2)
-                            .background(
-                                Circle()
-                                    .fill(.white)
-                                    .frame(width: 30, height: 30)
-                            )
-                        Text(pharmacy.name)
-                            .font(.caption)
-                            .padding(4)
-                            .background(.blue)
-                            .cornerRadius(4)
-                    }
-                    .onTapGesture {
-                        viewModel.selectedPharmacy = pharmacy   // Select pharmacy on tap
+            Map(position: $position) {
+                ForEach(viewModel.pharmacies) { pharmacy in
+                    Annotation(pharmacy.name, coordinate: pharmacy.coordinate) {
+                        VStack {
+                            Image(systemName: "cross.case.fill")
+                                .foregroundColor(.red)
+                                .font(.title2)
+                                .background(
+                                    Circle()
+                                        .fill(.white)
+                                        .frame(width: 30, height: 30)
+                                )
+                            Text(pharmacy.name)
+                                .font(.caption)
+                                .padding(4)
+                                .background(.white)
+                                .cornerRadius(4)
+                        }
+                        .onTapGesture {
+                            viewModel.selectedPharmacy = pharmacy
+                        }
                     }
                 }
             }
+            .mapStyle(.standard)
             .edgesIgnoringSafeArea(.all)
             
-            // Loading indicator while searching pharmacies
+            // Loading indicator
             if viewModel.isLoading {
                 ProgressView("Searching for pharmacies...")
                     .padding()
@@ -51,7 +60,7 @@ struct PharmacyMapView: View {
                     .shadow(radius: 5)
             }
             
-            // Show error message if search fails
+            // Error message
             if let errorMessage = viewModel.errorMessage {
                 VStack {
                     Text(errorMessage)
@@ -64,7 +73,7 @@ struct PharmacyMapView: View {
                 }
             }
             
-            // Display pharmacy count and selected pharmacy info card
+            // Pharmacy count
             VStack {
                 Text("Found \(viewModel.pharmacies.count) pharmacies")
                     .padding(8)
@@ -77,7 +86,7 @@ struct PharmacyMapView: View {
                 
                 if let pharmacy = viewModel.selectedPharmacy {
                     PharmacyInfoCard(pharmacy: pharmacy) {
-                        viewModel.openInMaps(pharmacy: pharmacy)  // Open Maps on button tap
+                        viewModel.openInMaps(pharmacy: pharmacy)
                     }
                     .padding()
                     .transition(.move(edge: .bottom))
@@ -85,14 +94,24 @@ struct PharmacyMapView: View {
             }
         }
         .onAppear {
-            print("🎬 PharmacyMapView appeared")
-            viewModel.searchNearbyPharmacies()  // Start search when view appears
+            print("PharmacyMapView appeared")
+            viewModel.searchNearbyPharmacies()
+        }
+        .onChange(of: viewModel.region) { oldValue, newValue in
+            position = .region(newValue)
         }
         .navigationTitle("Find Pharmacy")
         .navigationBarTitleDisplayMode(.inline)
     }
 }
-
+extension MKCoordinateRegion: @retroactive Equatable {
+    public static func == (lhs: MKCoordinateRegion, rhs: MKCoordinateRegion) -> Bool {
+        lhs.center.latitude == rhs.center.latitude &&
+        lhs.center.longitude == rhs.center.longitude &&
+        lhs.span.latitudeDelta == rhs.span.latitudeDelta &&
+        lhs.span.longitudeDelta == rhs.span.longitudeDelta
+    }
+}
 
 // Displays details of selected pharmacy with action button.
 struct PharmacyInfoCard: View {
