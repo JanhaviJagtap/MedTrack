@@ -1,5 +1,5 @@
 //
-//  DashboardView.swift
+//  MedicationListView.swift
 //  MedTrack
 //
 //  Created by Janhavi Jagtap on 20/9/2025.
@@ -7,18 +7,22 @@
 
 import SwiftUI
 
+// Displays a list of medications with add and delete functionality.
 struct MedicationListView: View {
+    // Fetches medications sorted alphabetically by name.
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Medication.name, ascending: true)],
         animation: .default)
     private var medications: FetchedResults<Medication>
     
+    // Controls presentation of add medication sheet.
     @State private var showingAddMedication = false
     
     var body: some View {
         NavigationView {
             List {
                 if medications.isEmpty {
+                    // Placeholder UI when no medications exist
                     VStack(spacing: 16) {
                         Image(systemName: "pills")
                             .font(.system(size: 60))
@@ -34,6 +38,7 @@ struct MedicationListView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 60)
                 } else {
+                    // List medications with navigation to detail and swipe to delete
                     ForEach(medications) { medication in
                         NavigationLink(destination: MedicationDetailView(medication: medication)) {
                             MedicationRow(medication: medication)
@@ -44,6 +49,7 @@ struct MedicationListView: View {
             }
             .navigationTitle("Medications")
             .toolbar {
+                // Add medication button
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showingAddMedication = true }) {
                         Image(systemName: "plus")
@@ -56,6 +62,7 @@ struct MedicationListView: View {
         }
     }
     
+    // Deletes selected medications from Core Data.
     private func deleteMedications(offsets: IndexSet) {
         withAnimation {
             offsets.map { medications[$0] }.forEach { medication in
@@ -65,6 +72,7 @@ struct MedicationListView: View {
     }
 }
 
+// Row view representing a medication item in the list.
 struct MedicationRow: View {
     let medication: Medication
     

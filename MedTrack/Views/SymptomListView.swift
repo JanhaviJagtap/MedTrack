@@ -7,18 +7,22 @@
 
 import SwiftUI
 
+// View that displays the list of symptoms and allows adding new ones.
 struct SymptomListView: View {
+    // Fetches symptoms from Core Data, sorted by most recent.
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Symptom.date, ascending: false)],
         animation: .default)
     private var symptoms: FetchedResults<Symptom>
     
+    // Controls showing the Add Symptom modal.
     @State private var showingAddSymptom = false
     
     var body: some View {
         NavigationView {
             List {
                 if symptoms.isEmpty {
+                    // Placeholder when no symptoms are logged
                     VStack(spacing: 16) {
                         Image(systemName: "heart.text.square")
                             .font(.system(size: 60))
@@ -34,6 +38,7 @@ struct SymptomListView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 60)
                 } else {
+                    // List of logged symptoms with swipe-to-delete functionality
                     ForEach(symptoms) { symptom in
                         SymptomRow(symptom: symptom)
                     }
@@ -42,18 +47,21 @@ struct SymptomListView: View {
             }
             .navigationTitle("Symptoms")
             .toolbar {
+                // Button to add a new symptom
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showingAddSymptom = true }) {
                         Image(systemName: "plus")
                     }
                 }
             }
+            // Sheet to add new symptom
             .sheet(isPresented: $showingAddSymptom) {
                 AddSymptomView()
             }
         }
     }
     
+    /// Deletes selected symptoms from persistent storage.
     private func deleteSymptoms(offsets: IndexSet) {
         withAnimation {
             offsets.map { symptoms[$0] }.forEach { symptom in
@@ -63,9 +71,11 @@ struct SymptomListView: View {
     }
 }
 
+// Row view showing symptom details and severity indicator.
 struct SymptomRow: View {
     let symptom: Symptom
     
+    // Severity color coding based on severity value.
     var severityColor: Color {
         switch symptom.severity {
         case 1...3: return .green
@@ -103,6 +113,7 @@ struct SymptomRow: View {
     }
 }
 
+// View to add and log a new symptom with severity and notes.
 struct AddSymptomView: View {
     @Environment(\.dismiss) var dismiss
     
@@ -159,12 +170,13 @@ struct AddSymptomView: View {
                     Button("Save") {
                         saveSymptom()
                     }
-                    .disabled(name.isEmpty)
+                    .disabled(name.isEmpty)  // Disable save if name empty
                 }
             }
         }
     }
     
+    // Saves symptom to Core Data and dismisses the view.
     private func saveSymptom() {
         CoreDataManager.shared.addSymptom(
             name: name,

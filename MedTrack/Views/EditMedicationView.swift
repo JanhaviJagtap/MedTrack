@@ -5,14 +5,15 @@
 //  Created by Janhavi Jagtap on 20/9/2025.
 //
 
-
 import SwiftUI
 
+// View for editing an existing medication's details.
 struct EditMedicationView: View {
-    @ObservedObject var medication: Medication
-    @Environment(\.dismiss) var dismiss
-    @Environment(\.managedObjectContext) private var context
+    @ObservedObject var medication: Medication                // Medication object to modify
+    @Environment(\.dismiss) var dismiss                        // Dismiss view action
+    @Environment(\.managedObjectContext) private var context     // Core Data context
     
+    // State variables initialized with current medication data
     @State private var name: String
     @State private var dosage: String
     @State private var frequency: String
@@ -20,6 +21,7 @@ struct EditMedicationView: View {
     @State private var reminderEnabled: Bool
     @State private var notes: String
     
+    // Initialize state variables with existing medication data for editing.
     init(medication: Medication) {
         self.medication = medication
         _name = State(initialValue: medication.name ?? "")
@@ -32,7 +34,9 @@ struct EditMedicationView: View {
     
     var body: some View {
         NavigationView {
+            // Form to edit medication details
             Form {
+                // Section for basic info
                 Section("Information") {
                     TextField("Name", text: $name)
                     TextField("Dosage", text: $dosage)
@@ -44,14 +48,17 @@ struct EditMedicationView: View {
                     }
                 }
                 
+                // Section to set remaining pills count
                 Section("Supply") {
                     Stepper("Pills: \(pillsRemaining)", value: $pillsRemaining, in: 0...1000, step: 5)
                 }
                 
+                // Section to toggle reminders
                 Section("Reminders") {
                     Toggle("Enable Reminders", isOn: $reminderEnabled)
                 }
                 
+                // Section for additional notes
                 Section("Notes") {
                     TextEditor(text: $notes)
                         .frame(height: 100)
@@ -59,22 +66,23 @@ struct EditMedicationView: View {
             }
             .navigationTitle("Edit Medication")
             .navigationBarTitleDisplayMode(.inline)
+            // Toolbar with Cancel and Save buttons
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
-                        dismiss()
+                        dismiss() // Dismiss without saving
                     }
                 }
-                
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        saveMedication()
+                        saveMedication() // Save modifications
                     }
                 }
             }
         }
     }
     
+    // Save the edited medication data into Core Data
     private func saveMedication() {
         medication.name = name
         medication.dosage = dosage
@@ -82,8 +90,8 @@ struct EditMedicationView: View {
         medication.pillsRemaining = Int16(pillsRemaining)
         medication.reminderEnabled = reminderEnabled
         medication.notes = notes.isEmpty ? nil : notes
-        
+        // Persist changes in Core Data
         CoreDataManager.shared.save()
-        dismiss()
+        dismiss() // Close view
     }
 }

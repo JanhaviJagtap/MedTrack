@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A2B901E32E92767700AB34BB /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = A2B901E22E92767700AB34BB /* Alamofire */; };
+		A2B901EE2E93F74D00AB34BB /* Advanced iOS Development README: documentation.pdf in Resources */ = {isa = PBXBuildFile; fileRef = A2B901ED2E93F74D00AB34BB /* Advanced iOS Development README: documentation.pdf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,6 +32,7 @@
 		A2B901452E92597C00AB34BB /* MedTrack.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MedTrack.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2B901572E92597F00AB34BB /* MedTrackTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MedTrackTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2B901612E92597F00AB34BB /* MedTrackUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MedTrackUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2B901ED2E93F74D00AB34BB /* Advanced iOS Development README: documentation.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "Advanced iOS Development README: documentation.pdf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -80,6 +82,7 @@
 		A2B9013C2E92597C00AB34BB = {
 			isa = PBXGroup;
 			children = (
+				A2B901ED2E93F74D00AB34BB /* Advanced iOS Development README: documentation.pdf */,
 				A2B901472E92597C00AB34BB /* MedTrack */,
 				A2B9015A2E92597F00AB34BB /* MedTrackTests */,
 				A2B901642E92597F00AB34BB /* MedTrackUITests */,
@@ -221,6 +224,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A2B901EE2E93F74D00AB34BB /* Advanced iOS Development README: documentation.pdf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -7,18 +7,22 @@
 
 import SwiftUI
 
+// Displays a list of medical appointments.
 struct AppointmentListView: View {
+    // Fetches appointments sorted by ascending date.
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Appointment.date, ascending: true)],
         animation: .default)
     private var appointments: FetchedResults<Appointment>
     
+    // State to control display of Add Appointment sheet.
     @State private var showingAddAppointment = false
     
     var body: some View {
         NavigationView {
             List {
                 if appointments.isEmpty {
+                    // Placeholder when no appointments exist
                     VStack(spacing: 16) {
                         Image(systemName: "calendar")
                             .font(.system(size: 60))
@@ -34,6 +38,7 @@ struct AppointmentListView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 60)
                 } else {
+                    // Display each appointment in a row with delete support
                     ForEach(appointments) { appointment in
                         AppointmentRow(appointment: appointment)
                     }
@@ -42,6 +47,7 @@ struct AppointmentListView: View {
             }
             .navigationTitle("Appointments")
             .toolbar {
+                // Button to add new appointment
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showingAddAppointment = true }) {
                         Image(systemName: "plus")
@@ -54,6 +60,7 @@ struct AppointmentListView: View {
         }
     }
     
+    // Deletes selected appointments using Core Data manager.
     private func deleteAppointments(offsets: IndexSet) {
         withAnimation {
             offsets.map { appointments[$0] }.forEach { appointment in
@@ -63,6 +70,7 @@ struct AppointmentListView: View {
     }
 }
 
+// View representing a single appointment row in the list.
 struct AppointmentRow: View {
     let appointment: Appointment
     
@@ -106,6 +114,7 @@ struct AppointmentRow: View {
     }
 }
 
+// View to add new appointment details.
 struct AddAppointmentView: View {
     @Environment(\.dismiss) var dismiss
     
@@ -149,6 +158,7 @@ struct AddAppointmentView: View {
         }
     }
     
+    // Saves the new appointment using Core Data manager.
     private func saveAppointment() {
         CoreDataManager.shared.addAppointment(
             doctorName: doctorName,

@@ -9,25 +9,32 @@ import SwiftUI
 import MapKit
 import CoreLocation
 
+// ViewModel responsible for handling pharmacy search and map region updates.
 class PharmacyViewModel: NSObject, ObservableObject {
+    // Current map region centered around Sydney coordinates.
     @Published var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: -33.8688, longitude: 151.2093),
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
+    
+    // List of nearby pharmacies as map annotations.
     @Published var pharmacies: [PharmacyAnnotation] = []
+    // Currently selected pharmacy for detail display.
     @Published var selectedPharmacy: PharmacyAnnotation?
+    // Flag to indicate if a search is in progress.
     @Published var isLoading = false
+    // Stores any error message from a search failure.
     @Published var errorMessage: String?
     
-    
+    //Fixed location (Sydney) for search anchor.
     private let fixedLocation = CLLocation(latitude: -33.8688, longitude: 151.2093)
     
+    // Initiates a search for pharmacies nearby the fixed location.
     func searchNearbyPharmacies() {
         isLoading = true
         errorMessage = nil
         
-        print("Starting pharmacy search near Sydney: \(fixedLocation.coordinate.latitude), \(fixedLocation.coordinate.longitude)")
-        
+        // Create a local search request for pharmacies within 5km radius.
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = "pharmacy"
         request.region = MKCoordinateRegion(
@@ -45,7 +52,6 @@ class PharmacyViewModel: NSObject, ObservableObject {
             }
             
             if let error = error {
-                print("Search error: \(error.localizedDescription)")
                 DispatchQueue.main.async {
                     self.errorMessage = "Search failed: \(error.localizedDescription)"
                 }
@@ -53,15 +59,13 @@ class PharmacyViewModel: NSObject, ObservableObject {
             }
             
             guard let response = response else {
-                print("No response from search")
                 DispatchQueue.main.async {
                     self.errorMessage = "No response from search"
                 }
                 return
             }
             
-            print("Received \(response.mapItems.count) results")
-            
+            // Map each result to PharmacyAnnotation including calculating distance.
             DispatchQueue.main.async {
                 self.pharmacies = response.mapItems.map { item in
                     let pharmacyLocation = CLLocation(
@@ -69,8 +73,6 @@ class PharmacyViewModel: NSObject, ObservableObject {
                         longitude: item.placemark.coordinate.longitude
                     )
                     let distance = self.fixedLocation.distance(from: pharmacyLocation)
-                    
-                    print("Found: \(item.name ?? "Unknown") at \(item.placemark.coordinate)")
                     
                     return PharmacyAnnotation(
                         name: item.name ?? "Pharmacy",
@@ -81,8 +83,6 @@ class PharmacyViewModel: NSObject, ObservableObject {
                     )
                 }
                 
-                print("Total pharmacies added: \(self.pharmacies.count)")
-                
                 if self.pharmacies.isEmpty {
                     self.errorMessage = "No pharmacies found nearby"
                 }
@@ -90,6 +90,7 @@ class PharmacyViewModel: NSObject, ObservableObject {
         }
     }
     
+    // Opens the selected pharmacy location in Apple Maps with driving directions.
     func openInMaps(pharmacy: PharmacyAnnotation) {
         pharmacy.mapItem.openInMaps(launchOptions: [
             MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving

@@ -7,11 +7,11 @@
 
 import MapKit
 import CoreLocation
-
+// Top-level FDA API response containing multiple drug labels.
 struct FDAResponse: Codable {
     let results: [FDADrugLabel]
 }
-
+// Represents a single drug label entry from the FDA.
 struct FDADrugLabel: Codable {
     let openfda: OpenFDA?
     let purpose: [String]?
@@ -20,13 +20,13 @@ struct FDADrugLabel: Codable {
     let drug_interactions: [String]?
     let dosage_and_administration: [String]?
 }
-
+// Detailed naming and manufacturer information from FDA.
 struct OpenFDA: Codable {
     let brand_name: [String]?
     let generic_name: [String]?
     let manufacturer_name: [String]?
 }
-
+// Simplified drug information used by the app UI.
 struct DrugInfo {
     let brandName: String
     let genericName: String
@@ -35,7 +35,7 @@ struct DrugInfo {
     let usage: String
     let warnings: String
     let dosage: String
-    
+    // Initialize from FDADrugLabel, providing default text for missing fields.
     init(from fdaLabel: FDADrugLabel) {
         self.brandName = fdaLabel.openfda?.brand_name?.first ?? "Unknown"
         self.genericName = fdaLabel.openfda?.generic_name?.first ?? "Unknown"
@@ -47,12 +47,12 @@ struct DrugInfo {
     }
 }
 
-
+// Model for pharmacy annotation to display on map views.
 struct PharmacyAnnotation: Identifiable {
     let id = UUID()
     let name: String
     let address: String
     let coordinate: CLLocationCoordinate2D
-    let distance: CLLocationDistance?
-    let mapItem: MKMapItem
+    let distance: CLLocationDistance?   // Distance from user locatio
+    let mapItem: MKMapItem              // Enables map directions
 }

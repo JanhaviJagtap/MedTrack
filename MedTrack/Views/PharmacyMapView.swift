@@ -1,5 +1,5 @@
 //
-//  DashboardView.swift
+//  PharmacyMapView.swift
 //  MedTrack
 //
 //  Created by Janhavi Jagtap on 20/9/2025.
@@ -9,13 +9,15 @@ import SwiftUI
 import MapKit
 import CoreLocation
 
+// Map view showing nearby pharmacies with annotations and details.
 struct PharmacyMapView: View {
-    @StateObject private var viewModel = PharmacyViewModel()
+    @StateObject private var viewModel = PharmacyViewModel()  // ViewModel managing pharmacy data
     
     var body: some View {
         ZStack {
+            // Map showing pharmacy locations with custom annotations
             Map(coordinateRegion: $viewModel.region,
-                showsUserLocation: false,  // Changed to false
+                showsUserLocation: false,    // User location not shown
                 annotationItems: viewModel.pharmacies) { pharmacy in
                 MapAnnotation(coordinate: pharmacy.coordinate) {
                     VStack {
@@ -34,13 +36,13 @@ struct PharmacyMapView: View {
                             .cornerRadius(4)
                     }
                     .onTapGesture {
-                        viewModel.selectedPharmacy = pharmacy
+                        viewModel.selectedPharmacy = pharmacy   // Select pharmacy on tap
                     }
                 }
             }
             .edgesIgnoringSafeArea(.all)
             
-            // Loading indicator
+            // Loading indicator while searching pharmacies
             if viewModel.isLoading {
                 ProgressView("Searching for pharmacies...")
                     .padding()
@@ -49,7 +51,7 @@ struct PharmacyMapView: View {
                     .shadow(radius: 5)
             }
             
-            // Error message
+            // Show error message if search fails
             if let errorMessage = viewModel.errorMessage {
                 VStack {
                     Text(errorMessage)
@@ -62,7 +64,7 @@ struct PharmacyMapView: View {
                 }
             }
             
-            // Pharmacy count
+            // Display pharmacy count and selected pharmacy info card
             VStack {
                 Text("Found \(viewModel.pharmacies.count) pharmacies")
                     .padding(8)
@@ -75,7 +77,7 @@ struct PharmacyMapView: View {
                 
                 if let pharmacy = viewModel.selectedPharmacy {
                     PharmacyInfoCard(pharmacy: pharmacy) {
-                        viewModel.openInMaps(pharmacy: pharmacy)
+                        viewModel.openInMaps(pharmacy: pharmacy)  // Open Maps on button tap
                     }
                     .padding()
                     .transition(.move(edge: .bottom))
@@ -84,7 +86,7 @@ struct PharmacyMapView: View {
         }
         .onAppear {
             print("🎬 PharmacyMapView appeared")
-            viewModel.searchNearbyPharmacies()
+            viewModel.searchNearbyPharmacies()  // Start search when view appears
         }
         .navigationTitle("Find Pharmacy")
         .navigationBarTitleDisplayMode(.inline)
@@ -92,11 +94,10 @@ struct PharmacyMapView: View {
 }
 
 
-// MARK: - Pharmacy Info Card
-
+// Displays details of selected pharmacy with action button.
 struct PharmacyInfoCard: View {
     let pharmacy: PharmacyAnnotation
-    let onDirectionsTapped: () -> Void
+    let onDirectionsTapped: () -> Void     // Action callback for directions
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

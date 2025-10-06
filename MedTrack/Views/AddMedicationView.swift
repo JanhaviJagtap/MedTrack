@@ -7,9 +7,12 @@
 
 import SwiftUI
 
+// View to add a new medication with details and reminders.
 struct AddMedicationView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.managedObjectContext) private var context
+    
+    // MARK: - Form state properties
     
     @State private var name = ""
     @State private var dosage = ""
@@ -20,6 +23,7 @@ struct AddMedicationView: View {
     @State private var selectedTimes: [Date] = [Date()]
     @State private var showingDrugInfo = false
     
+    // Common frequency options
     let frequencies = ["Once daily", "Twice daily", "Three times daily", "As needed"]
     
     var body: some View {
@@ -35,6 +39,7 @@ struct AddMedicationView: View {
                         }
                     }
                     
+                    // Show drug info button if name length is sufficient
                     if name.count > 2 {
                         Button(action: { showingDrugInfo = true }) {
                             Label("View Drug Information", systemImage: "info.circle")
@@ -46,10 +51,12 @@ struct AddMedicationView: View {
                     Toggle("Enable Reminders", isOn: $reminderEnabled)
                     
                     if reminderEnabled {
+                        // Show a date picker for each selected time
                         ForEach(selectedTimes.indices, id: \.self) { index in
                             DatePicker("Time \(index + 1)", selection: $selectedTimes[index], displayedComponents: .hourAndMinute)
                         }
                         
+                        // Add another reminder time up to max 5
                         Button(action: addTimeSlot) {
                             Label("Add Another Time", systemImage: "plus.circle")
                         }
@@ -79,7 +86,7 @@ struct AddMedicationView: View {
                     Button("Save") {
                         saveMedication()
                     }
-                    .disabled(name.isEmpty || dosage.isEmpty)
+                    .disabled(name.isEmpty || dosage.isEmpty)  // Disable save if required fields empty
                 }
             }
             .sheet(isPresented: $showingDrugInfo) {
@@ -88,10 +95,12 @@ struct AddMedicationView: View {
         }
     }
     
+    /// Adds a new time slot for reminders.
     private func addTimeSlot() {
         selectedTimes.append(Date())
     }
     
+    /// Saves medication data to CoreData.
     private func saveMedication() {
         let timeStrings = selectedTimes.map { time in
             let formatter = DateFormatter()

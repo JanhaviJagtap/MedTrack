@@ -8,11 +8,13 @@
 import UserNotifications
 import UIKit
 
+// Manages all local notification scheduling and permission requests.
 class NotificationManager {
     static let shared = NotificationManager()
     
     private let notificationCenter = UNUserNotificationCenter.current()
     
+    // Requests user permission for alerts, sounds, and badges.
     func requestPermission() {
         notificationCenter.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if granted {
@@ -23,8 +25,9 @@ class NotificationManager {
         }
     }
     
-    // MARK: - Medication Reminders
     
+    
+    // Schedules repeating notifications for medication times.
     func scheduleMedicationReminders(medicationId: String, medicationName: String, times: [String]) {
         for time in times {
             let components = time.components(separatedBy: ":")
@@ -55,10 +58,10 @@ class NotificationManager {
         }
     }
     
-    // MARK: - Appointment Reminders
     
+    
+    // Schedules a one-time notification 24 hours before an appointment.
     func scheduleAppointmentReminder(appointmentId: String, doctorName: String, date: Date) {
-        // Schedule reminder 24 hours before
         guard let reminderDate = Calendar.current.date(byAdding: .day, value: -1, to: date) else { return }
         
         let content = UNMutableNotificationContent()
@@ -75,10 +78,12 @@ class NotificationManager {
         notificationCenter.add(request)
     }
     
-    // MARK: - Cancel Notifications
     
+    
+    // Cancels pending notifications matching an id.
     func cancelNotifications(for id: String) {
         notificationCenter.getPendingNotificationRequests { requests in
+            // Find all identifiers containing this id and remove them
             let identifiers = requests.filter { $0.identifier.contains(id) }.map { $0.identifier }
             self.notificationCenter.removePendingNotificationRequests(withIdentifiers: identifiers)
         }

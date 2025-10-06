@@ -8,17 +8,20 @@
 import Foundation
 import Alamofire
 
+// Manages network calls to the FDA drug API.
 class NetworkManager {
     static let shared = NetworkManager()
     
     private let baseURL = "https://api.fda.gov/drug"
     
-    // MARK: - Drug Information
     
+    
+    // Searches drug information by name.
     func searchDrugInfo(drugName: String, completion: @escaping (Result<DrugInfo, Error>) -> Void) {
         let encodedName = drugName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? drugName
         let url = "\(baseURL)/label.json?search=openfda.brand_name:\(encodedName)&limit=1"
         
+        // Make network request and decode response
         AF.request(url).responseDecodable(of: FDAResponse.self) { response in
             switch response.result {
             case .success(let fdaResponse):
@@ -26,7 +29,7 @@ class NetworkManager {
                     let drugInfo = DrugInfo(from: firstResult)
                     completion(.success(drugInfo))
                 } else {
-                    // No results found - return custom error
+                    // No results found
                     let error = NSError(domain: "MediTrack", code: 404, userInfo: [
                         NSLocalizedDescriptionKey: "No results found"
                     ])
@@ -38,18 +41,20 @@ class NetworkManager {
         }
     }
     
-    // MARK: - Drug Interactions
     
+    
+    // Checks drug interactions for a list of drugs.
+    // Currently only checks first drug in the list.
     func checkDrugInteractions(drugs: [String], completion: @escaping (Result<[String], Error>) -> Void) {
         guard !drugs.isEmpty else {
-            completion(.success([]))
+            completion(.success([])) // Empty list returns empty interactions
             return
         }
         
-        // Query FDA API for the first drug's interactions
         let encodedName = drugs[0].addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? drugs[0]
         let url = "\(baseURL)/label.json?search=openfda.brand_name:\(encodedName)&limit=1"
         
+        // Make network request and decode response
         AF.request(url).responseDecodable(of: FDAResponse.self) { response in
             switch response.result {
             case .success(let fdaResponse):
@@ -65,4 +70,3 @@ class NetworkManager {
         }
     }
 }
-

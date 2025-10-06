@@ -8,7 +8,9 @@
 import SwiftUI
 import CoreData
 
+// Main entry view containing the tabbed navigation.
 struct ContentView: View {
+    // Current selected tab index.
     @State private var selectedTab = 0
     
     var body: some View {
@@ -45,6 +47,7 @@ struct ContentView: View {
         }
     }
 }
+
 #Preview {
     ContentView()
 }

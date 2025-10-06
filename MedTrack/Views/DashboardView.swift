@@ -7,12 +7,15 @@
 
 import SwiftUI
 
+// Main dashboard view showing app overview, medication summary, upcoming appointments, and quick action buttons.
 struct DashboardView: View {
+    // Fetch all medications, sorted alphabetically.
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Medication.name, ascending: true)],
         animation: .default)
     private var medications: FetchedResults<Medication>
     
+    // Fetch upcoming appointments that are not completed and have a date in the future.
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Appointment.date, ascending: true)],
         predicate: NSPredicate(format: "date >= %@ AND isCompleted == NO", Date() as NSDate),
@@ -23,19 +26,16 @@ struct DashboardView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
-                    // Header
-                    HeaderCard()
+                    HeaderCard()   // Greeting and date header
                     
-                    // Medications Summary
-                    MedicationsSummaryCard(count: medications.count)
+                    MedicationsSummaryCard(count: medications.count)  // Summary of active medications
                     
-                    // Upcoming Appointments
+                    // Show up to three upcoming appointments if available
                     if !upcomingAppointments.isEmpty {
                         UpcomingAppointmentsCard(appointments: Array(upcomingAppointments.prefix(3)))
                     }
                     
-                    // Quick Actions
-                    QuickActionsGrid()
+                    QuickActionsGrid()  // Navigation buttons for common tasks
                 }
                 .padding()
             }
@@ -45,6 +45,7 @@ struct DashboardView: View {
     }
 }
 
+// Header card with welcome message and current date.
 struct HeaderCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -74,6 +75,7 @@ struct HeaderCard: View {
     }
 }
 
+// Card displaying the count of active medications with an icon.
 struct MedicationsSummaryCard: View {
     let count: Int
     
@@ -100,6 +102,7 @@ struct MedicationsSummaryCard: View {
     }
 }
 
+// Card listing upcoming medical appointments with a navigation indicator.
 struct UpcomingAppointmentsCard: View {
     let appointments: [Appointment]
     
@@ -140,6 +143,7 @@ struct UpcomingAppointmentsCard: View {
     }
 }
 
+// Grid of quick action buttons for adding medication, symptoms, appointments, and searching drugs.
 struct QuickActionsGrid: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -150,15 +154,12 @@ struct QuickActionsGrid: View {
                 NavigationLink(destination: AddMedicationView()) {
                     QuickActionButton(icon: "plus.circle.fill", title: "Add Medication", color: .blue)
                 }
-                
                 NavigationLink(destination: AddSymptomView()) {
                     QuickActionButton(icon: "heart.text.square.fill", title: "Log Symptom", color: .red)
                 }
-                
                 NavigationLink(destination: AddAppointmentView()) {
                     QuickActionButton(icon: "calendar.badge.plus", title: "New Appointment", color: .green)
                 }
-                
                 NavigationLink(destination: DrugSearchView()) {
                     QuickActionButton(icon: "magnifyingglass", title: "Drug Info", color: .orange)
                 }
@@ -170,6 +171,7 @@ struct QuickActionsGrid: View {
     }
 }
 
+// Button showing an icon and title for quick actions.
 struct QuickActionButton: View {
     let icon: String
     let title: String

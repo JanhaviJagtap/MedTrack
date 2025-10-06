@@ -5,23 +5,25 @@
 //  Created by Janhavi Jagtap on 20/9/2025.
 //
 
-
 import SwiftUI
 
+// View to fetch and display detailed drug information.
 struct DrugInfoView: View {
-    let drugName: String
+    let drugName: String                     // Name of drug to query info for
     
-    @State private var drugInfo: DrugInfo?
-    @State private var isLoading = false
-    @State private var errorMessage: String?
-    @Environment(\.dismiss) var dismiss
+    @State private var drugInfo: DrugInfo?  // Holds fetched drug info details
+    @State private var isLoading = false    // Loading indicator flag
+    @State private var errorMessage: String? // Stores error message on failure
+    @Environment(\.dismiss) var dismiss     // Dismiss action for modal view
     
     var body: some View {
         NavigationView {
             Group {
                 if isLoading {
+                    // Show loading spinner while fetching data
                     ProgressView("Loading drug information...")
                 } else if let error = errorMessage {
+                    // Show error UI with retry button
                     VStack(spacing: 20) {
                         Image(systemName: "exclamationmark.triangle")
                             .font(.system(size: 60))
@@ -43,6 +45,7 @@ struct DrugInfoView: View {
                     }
                     .padding()
                 } else if let info = drugInfo {
+                    // Display detailed drug info in scrollable sections
                     ScrollView {
                         VStack(alignment: .leading, spacing: 20) {
                             InfoSection(title: "Brand Name", content: info.brandName)
@@ -62,16 +65,17 @@ struct DrugInfoView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
-                        dismiss()
+                        dismiss()  // Close view
                     }
                 }
             }
         }
         .onAppear {
-            loadDrugInfo()
+            loadDrugInfo()   // Trigger info fetch on appear
         }
     }
     
+    // Fetches drug information from network and handles errors.
     private func loadDrugInfo() {
         isLoading = true
         errorMessage = nil
@@ -84,7 +88,7 @@ struct DrugInfoView: View {
                 case .success(let info):
                     drugInfo = info
                 case .failure(let error):
-                    // Better error handling
+                    // Provide user-friendly error messages based on error type
                     if error is DecodingError {
                         errorMessage = "No information found for '\(drugName)'. Try a different medication name."
                     } else if (error as NSError).code == NSURLErrorNotConnectedToInternet {
@@ -98,6 +102,7 @@ struct DrugInfoView: View {
     }
 }
 
+// Subview representing a titled info section with optional warning style.
 struct InfoSection: View {
     let title: String
     let content: String
@@ -120,4 +125,3 @@ struct InfoSection: View {
         .cornerRadius(12)
     }
 }
-
